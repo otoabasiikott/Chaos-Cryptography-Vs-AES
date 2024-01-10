@@ -1,0 +1,109 @@
+#include <iostream>
+#include <fstream>
+#include <openssl/aes.h>
+#include <ctime>
+
+class AESEncryptor {
+public:
+    AESEncryptor(const std::string& inputFileName, const std::string& outputFileName)
+        : inputFileName(inputFileName), outputFileName(outputFileName) {}
+
+    void encrypt() {
+        std::ifstream inputFile(inputFileName, std::ios::binary);
+        std::ofstream outputFile(outputFileName, std::ios::binary);
+
+        if (!inputFile.is_open()) {
+            std::cerr << "Error opening input file.\n";
+            return;
+        }
+
+        if (!outputFile.is_open()) {
+            std::cerr << "Error opening output file.\n";
+            inputFile.close();
+            return;
+        }
+
+        // Measure encryption time
+        clock_t start = clock();
+
+        AES_KEY aesKey;
+        const unsigned char aesKeyBytes[16] = {'k', 'e', 'y', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c'};
+        AES_set_encrypt_key(aesKeyBytes, 128, &aesKey);
+
+        unsigned char inputBuffer[16];
+        unsigned char outputBuffer[16];
+
+        while (inputFile.read(reinterpret_cast<char*>(inputBuffer), 16)) {
+            AES_encrypt(inputBuffer, outputBuffer, &aesKey);
+            outputFile.write(reinterpret_cast<const char*>(outputBuffer), 16);
+        }
+
+        clock_t end = clock();
+        double encryptionTime = static_cast<double>(end - start) / CLOCKS_PER_SEC;
+
+        std::cout << "Encryption Time: " << encryptionTime << " seconds\n";
+
+        inputFile.close();
+        outputFile.close();
+    }
+
+    void decrypt() {
+        std::ifstream inputFile(outputFileName, std::ios::binary);
+        std::ofstream outputFile(decryptedFileName, std::ios::binary);
+
+        if (!inputFile.is_open()) {
+            std::cerr << "Error opening input file.\n";
+            return;
+        }
+
+        if (!outputFile.is_open()) {
+            std::cerr << "Error opening output file.\n";
+            inputFile.close();
+            return;
+        }
+
+        // Measure decryption time
+        clock_t start = clock();
+
+        AES_KEY aesKey;
+        const unsigned char aesKeyBytes[16] = {'k', 'e', 'y', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c'};
+        AES_set_decrypt_key(aesKeyBytes, 128, &aesKey);
+
+        unsigned char inputBuffer[16];
+        unsigned char outputBuffer[16];
+
+        while (inputFile.read(reinterpret_cast<char*>(inputBuffer), 16)) {
+            AES_decrypt(inputBuffer, outputBuffer, &aesKey);
+            outputFile.write(reinterpret_cast<const char*>(outputBuffer), 16);
+        }
+
+        clock_t end = clock();
+        double decryptionTime = static_cast<double>(end - start) / CLOCKS_PER_SEC;
+
+        std::cout << "Decryption Time: " << decryptionTime << " seconds\n";
+
+        inputFile.close();
+        outputFile.close();
+    }
+
+private:
+    std::string inputFileName;
+    std::string outputFileName;
+    std::string decryptedFileName = "decrypted_aes_picture.jpg";  // Change this to match the format of your input picture file
+};
+
+int main() {
+    std::string inputPictureFileName = "pexels2.jpg";  // Change this to the path of your input picture file
+    std::string encryptedAesPictureFileName = "encrypted_aes_picture.jpg";  // Change this to the desired output path for the encrypted file
+
+    AESEncryptor aesEncryptor(inputPictureFileName, encryptedAesPictureFileName);
+
+    // Encrypt the picture using AES
+    aesEncryptor.encrypt();
+
+    // Decrypt the picture using AES
+    aesEncryptor.decrypt();
+
+    return 0;
+}
+
