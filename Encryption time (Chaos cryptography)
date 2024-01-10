@@ -1,0 +1,119 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <ctime>
+
+class ChaosCryptography {
+public:
+    ChaosCryptography(double initialCondition, double controlParameter)
+        : x(initialCondition), r(controlParameter) {}
+
+    double logisticMap() {
+        x = r * x * (1 - x);
+        return x;
+    }
+
+private:
+    double x;
+    double r;
+};
+
+class PictureEncryptor {
+public:
+    PictureEncryptor(const std::string& inputFileName, const std::string& outputFileName,
+                     double initialCondition, double controlParameter)
+        : chaosCrypto(initialCondition, controlParameter), inputFileName(inputFileName), outputFileName(outputFileName) {}
+
+    void encrypt() {
+        std::ifstream inputFile(inputFileName, std::ios::binary);
+        std::ofstream outputFile(outputFileName, std::ios::binary);
+
+        if (!inputFile.is_open()) {
+            std::cerr << "Error opening input file.\n";
+            return;
+        }
+
+        if (!outputFile.is_open()) {
+            std::cerr << "Error opening output file.\n";
+            inputFile.close();
+            return;
+        }
+
+        // Measure encryption time
+        clock_t start = clock();
+
+        char byte;
+        while (inputFile.get(byte)) {
+            char encryptedByte = byte ^ static_cast<char>(chaosCrypto.logisticMap() * 256);
+            outputFile.put(encryptedByte);
+        }
+
+        clock_t end = clock();
+        double encryptionTime = static_cast<double>(end - start) / CLOCKS_PER_SEC;
+
+        std::cout << "Encryption Time: " << encryptionTime << " seconds\n";
+
+        inputFile.close();
+        outputFile.close();
+    }
+
+    void decrypt() {
+        // Use the same chaosCrypto object for decryption
+        chaosCrypto = ChaosCryptography(initialCondition, controlParameter);
+
+        std::ifstream inputFile(outputFileName, std::ios::binary);
+        std::ofstream outputFile(decryptedFileName, std::ios::binary);
+
+        if (!inputFile.is_open()) {
+            std::cerr << "Error opening input file.\n";
+            return;
+        }
+
+        if (!outputFile.is_open()) {
+            std::cerr << "Error opening output file.\n";
+            inputFile.close();
+            return;
+        }
+
+        // Measure decryption time
+        clock_t start = clock();
+
+        char byte;
+        while (inputFile.get(byte)) {
+            char decryptedByte = byte ^ static_cast<char>(chaosCrypto.logisticMap() * 256);
+            outputFile.put(decryptedByte);
+        }
+
+        clock_t end = clock();
+        double decryptionTime = static_cast<double>(end - start) / CLOCKS_PER_SEC;
+
+        std::cout << "Decryption Time: " << decryptionTime << " seconds\n";
+
+        inputFile.close();
+        outputFile.close();
+    }
+
+private:
+    ChaosCryptography chaosCrypto;
+    std::string inputFileName;
+    std::string outputFileName;
+    std::string decryptedFileName = "decrypted_picture.jpg";  // Change this to match the format of your input picture file
+    double initialCondition = 0.1;  // Initial condition for the logistic map
+    double controlParameter = 3.8;  // Control parameter for the logistic map
+};
+
+int main() {
+    std::string inputPictureFileName = "pexels2.jpg";  // Change this to the path of your input picture file
+    std::string encryptedPictureFileName = "encrypted_picture.jpg";  // Change this to the desired output path for the encrypted file
+
+    PictureEncryptor encryptor(inputPictureFileName, encryptedPictureFileName, 0.1, 3.8);
+
+    // Encrypt the picture
+    encryptor.encrypt();
+
+    // Decrypt the picture
+    encryptor.decrypt();
+
+    return 0;
+}
+
