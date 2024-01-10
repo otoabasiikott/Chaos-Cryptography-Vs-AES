@@ -1,0 +1,26 @@
+#include <iostream>
+#include <openssl/aes.h>
+
+int main() {
+    const int keySizeBits = 256;
+    const int keySizeBytes = keySizeBits / 8;
+
+    // Memory for the AES key
+    AES_KEY aesKey;
+    unsigned char aesKeyBytes[keySizeBytes];
+
+    // Assuming some additional data structures or buffers used in the implementation
+    const int bufferSize = 1024;  // Adjust for your specific data size
+
+    // Additional buffers or data structures used in the implementation
+    unsigned char buffer[bufferSize];
+
+    // Calculate the total memory usage
+    size_t totalMemoryUsage = sizeof(AES_KEY) + sizeof(aesKeyBytes) + sizeof(buffer);
+
+    // Output the estimated memory footprint
+    std::cout << "Estimated Memory Footprint: " << totalMemoryUsage << " bytes\n";
+
+    return 0;
+}
+
