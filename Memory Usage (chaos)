@@ -1,0 +1,23 @@
+#include <iostream>
+
+int main() {
+    const int keySizeBits = 256;
+    const int keySizeBytes = keySizeBits / 8;
+
+    // Assuming some additional data structures or buffers used in the implementation
+    const int bufferSize = 1024;  // Adjust for your specific data size
+
+    // Memory for the chaos key
+    unsigned char chaosKey[keySizeBytes];
+
+    // Additional buffers or data structures used in the implementation
+    unsigned char buffer[bufferSize];
+
+    // Calculate the total memory usage
+    size_t totalMemoryUsage = sizeof(chaosKey) + sizeof(buffer);
+
+    // Output the estimated memory footprint
+    std::cout << "Estimated Memory Footprint: " << totalMemoryUsage << " bytes\n";
+
+    return 0;
+}
